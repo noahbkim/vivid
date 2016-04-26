@@ -68,10 +68,7 @@ function Visualizer() {
         /* Define drag and drop. */        
         this.upload.onchange = function() {
             if (that.upload.files.length === 0) return;
-            for (var i = 0; i < that.upload.files.length; i++) {
-                var file = that.upload.files[i];
-                that.load(file);
-            }
+            that.load(that.upload.files)
         }        
         body.addEventListener("dragover", function(e) {
             e.stopPropagation();
@@ -81,7 +78,7 @@ function Visualizer() {
         body.addEventListener("drop", function(e) {
             e.stopPropagation();
             e.preventDefault();
-            that.load(e.dataTransfer.files[0]);
+            that.load(e.dataTransfer.files);
         }, false);
         
         /* Play and pause. */
@@ -96,7 +93,7 @@ function Visualizer() {
             var y = e.pageY - that.canvas.offsetTop;
             if (10 <= x && x <= 30 && 10 <= y && y <= 30) that.next();
             else if (40 <= x && x <= 60 && 10 <= y && y <= 30) that.toggle();
-            else if (90 <= x && x <= 70 && 10 <= y && y <= 30) that.last();
+            else if (70 <= x && x <= 90 && 10 <= y && y <= 30) that.last();
         }, false);
         
         /* Draw instructions. */
@@ -109,21 +106,30 @@ function Visualizer() {
     }
     
     /* Load an uploaded file. */
-    this.load = function(file) {
+    this.load = function(files) {
         
-        /* Get the file index and add to list. */
-        var index = this.files.length;
-        this.files.push(file);
+        console.log(files);
         
-        /* Generate a row. */
-        var row = document.createElement("li");
-        var show = "&#9658;&nbsp;" + file.name;
-        var link = "javascript: play(" + index + ")";
-        row.innerHTML = "<span onclick=\"" + link + "\">" + show + "</span>";
-        this.list.appendChild(row);
+        for (var i = 0; i < files.length; i++) {
+                        
+            /* Get an individual file. */
+            var file = files[i];
         
-        /* Play if nothing is playing. */
-        if (this.state !== PLAYING) this.play(index);
+            /* Get the file index and add to list. */
+            var index = this.files.length;
+            this.files.push(file);
+
+            /* Generate a row. */
+            var row = document.createElement("li");
+            var show = "&#9658;&nbsp;" + file.name;
+            var link = "javascript: play(" + index + ")";
+            row.innerHTML = "<span onclick=\"" + link + "\">" + show + "</span>";
+            this.list.appendChild(row);
+
+            /* Play if nothing is playing. */
+            if (this.state !== PLAYING) this.play(index);
+            
+        }
         
     }
     
@@ -196,11 +202,13 @@ function Visualizer() {
     }
     
     this.next = function() {
-        
+        if (this.index == -1) return;
+        if (this.index+1 < this.files.length) this.play(this.index+1);
     }
     
     this.last = function() {
-        
+        if (this.index == -1) return;
+        if (this.index-1 >= 0) this.play(this.index-1);
     }
     
     /* Pause. */
@@ -231,6 +239,16 @@ function Visualizer() {
         
         /* Controls. */
         if (this.hover) {
+            
+            this.context.fillStyle = "black";
+            
+            /* Time. */
+            var time = Date.now() - this.source.time;
+            var minutes = Math.floor((time / 1000) / 60);
+            var seconds = ("0" + Math.floor((time / 1000) % 60)).substr(-2);
+            this.context.textBaseline = "top";
+            this.context.textAlign = "left";
+            this.context.fillText(minutes + ":" + seconds, 10, 10)
             
             /* Next. */
             this.context.beginPath();
@@ -279,6 +297,8 @@ function Visualizer() {
 
 /* Visualizer functions. */
 function bars(canvas, context, analyser) {
+    
+    context.fillStyle = "gray";
     
     var gap = 8;
     var start = 0;
