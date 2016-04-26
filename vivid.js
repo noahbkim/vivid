@@ -322,11 +322,11 @@ function Visualizer() {
 /* Visualizer functions. */
 function bars(canvas, context, analyser) {
     
-    context.fillStyle = "gray";
+    context.fillStyle = "lightgray";
     
-    var gap = 8;
+    var gap = 0;
     var start = 0;
-    var range = 32;
+    var range = 48;
     var count = Math.min(64, range);
     var width = (canvas.width - (count+1)*gap) / count;
     var step = Math.round(range / count);
@@ -337,7 +337,6 @@ function bars(canvas, context, analyser) {
     context.clearRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < count; i++) {
         var value = array[i * step + start];
-        context.fillStyle = "#000";
-        context.fillRect(i * (width + gap) + gap, canvas.height - value, width, canvas.height);
+        context.fillRect(Math.floor(i * (width + gap) + gap), canvas.height - value, Math.ceil(width), canvas.height);
     }
 }
