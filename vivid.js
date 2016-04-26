@@ -38,6 +38,7 @@ function Visualizer() {
     this.context;
     this.source;
     this.analyser;
+    this.gain;
     
     /* Stuff. */
     this.frame;
@@ -109,6 +110,7 @@ function Visualizer() {
     this.load = function(files) {
         
         console.log(files);
+        var index = 0;
         
         for (var i = 0; i < files.length; i++) {
                         
@@ -116,7 +118,7 @@ function Visualizer() {
             var file = files[i];
         
             /* Get the file index and add to list. */
-            var index = this.files.length;
+            index = this.files.length;
             this.files.push(file);
 
             /* Generate a row. */
@@ -125,11 +127,11 @@ function Visualizer() {
             var link = "javascript: play(" + index + ")";
             row.innerHTML = "<span onclick=\"" + link + "\">" + show + "</span>";
             this.list.appendChild(row);
-
-            /* Play if nothing is playing. */
-            if (this.state !== PLAYING) this.play(index);
             
         }
+        
+        /* Play if nothing is playing. */
+        if (this.state !== PLAYING) this.play(index-1);
         
     }
     
@@ -166,8 +168,10 @@ function Visualizer() {
         /* Set up the audio. */
         var source = this.audio.createBufferSource();
         var analyser = this.audio.createAnalyser();
+        var gain = this.audio.createGain();
         source.connect(analyser);
-        analyser.connect(this.audio.destination);
+        analyser.connect(gain);
+        gain.connect(this.audio.destination);
         source.buffer = this.buffer;
 
         /* Check audio members and stop current song. */
