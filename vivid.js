@@ -116,7 +116,7 @@ function Visualizer() {
         this.context.textBaseline = "middle";
         this.context.textAlign = "center";
         this.context.font = "20px sans-serif";
-        this.context.fillText("drag and drop to upload", 400, 175);
+        this.context.fillText("drag and drop a music file to upload and play", 400, 175);
         this.context.fillStyle = "gray";
 
     }
@@ -270,7 +270,7 @@ function Visualizer() {
         if (this.state == WAITING) return;
         
         /* Draw. */
-        this.draw(this.canvas, this.context, this.analyser);
+        this.draw(this.canvas, this.context, this.analyser, this.cache);
         
         /* Controls. */
         if (this.hover) {
@@ -336,14 +336,14 @@ function Visualizer() {
 }
 
 /* Visualizer functions. */
-function bars(canvas, context, analyser) {
+function bars(canvas, context, analyser, cache) {
     
     context.fillStyle = "lightgray";
     
     var gap = 0;
     var start = 0;
-    var range = 48;
-    var count = Math.min(64, range);
+    var range = 64;
+    var count = range;
     var width = (canvas.width - (count+1)*gap) / count;
     var step = Math.round(range / count);
     
