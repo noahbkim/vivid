@@ -44,10 +44,12 @@ function Visualizer() {
     this.frame;
     this.buffer;
     this.volume = 50;
+    this.voluming = false;
     this.state = WAITING;
     this.switched = false;
     this.hover = false;
-    this.voluming = false;
+    this.name = "";
+    this.fullname = "";
     this.time = 0;
     this.index = -1;
     this.files = [];
@@ -133,9 +135,10 @@ function Visualizer() {
 
             /* Generate a row. */
             var row = document.createElement("li");
+            var id = file.name;
             var show = "&#9658;&nbsp;" + file.name;
             var link = "javascript: play(" + index + ")";
-            row.innerHTML = "<span onclick=\"" + link + "\">" + show + "</span>";
+            row.innerHTML = "<span id=\"" + id + "\" onclick=\"" + link + "\">" + show + "</span>";
             this.list.appendChild(row);
             
         }
@@ -164,6 +167,19 @@ function Visualizer() {
                 that.buffer = buffer;
                 that.state = WAITING;
                 that.resume();
+            
+                var classes = document.getElementsByTagName("span");
+                for (var i = 0; i < classes.length; i++) {
+                    console.log(classes[i].id);
+                    if (classes[i].id == that.fullname) {
+                        classes[i].style.fontWeight = "normal";
+                    } else if (classes[i].id == that.files[index].name) {
+                        classes[i].style.fontWeight = "bold";  
+                    }
+                }
+                that.fullname = that.files[index].name;
+                that.name = that.files[index].name.replace(/\.[^/.]+$/, "");
+        
             /* Otherwise. */
             }, function(e) {
                 console.log("Invalid file");
@@ -262,13 +278,13 @@ function Visualizer() {
             /* Style. */
             this.context.fillStyle = "black";
             
-            /* Time. */
+            /* Name and time. */
             var time = Date.now() - this.source.time;
             var minutes = Math.floor((time / 1000) / 60);
             var seconds = ("0" + Math.floor((time / 1000) % 60)).substr(-2);
             this.context.textBaseline = "top";
             this.context.textAlign = "left";
-            this.context.fillText(minutes + ":" + seconds, 10, 10)
+            this.context.fillText(minutes + ":" + seconds + (this.name ? " | " + this.name : ""), 10, 10)
             
             /* Volume. */
             this.context.fillRect(this.canvas.width - 204, 18, 104, 4);
