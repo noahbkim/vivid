@@ -1,0 +1,25 @@
+body {
+    margin: 4em auto;
+    width: 800px;
+    background-color: lightgrey;
+    font-family: sans-serif;
+}
+
+#canvas {
+    background-color: white;
+    border-radius: 4px;
+}
+
+#list {
+    width: 100%;
+    list-style: none;
+    padding-left: 0;
+}
+
+#list li {
+    cursor: pointer;
+}
+
+#upload {
+    display: none;
+}
