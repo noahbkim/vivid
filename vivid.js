@@ -43,9 +43,11 @@ function Visualizer() {
     /* Stuff. */
     this.frame;
     this.buffer;
+    this.volume = 50;
     this.state = WAITING;
     this.switched = false;
     this.hover = false;
+    this.voluming = false;
     this.time = 0;
     this.index = -1;
     this.files = [];
@@ -89,13 +91,24 @@ function Visualizer() {
         canvas.addEventListener("mouseout", function(e) {
             that.hover = false;
         }, false);
-        canvas.addEventListener("click", function(e) {
+        canvas.addEventListener("mousedown", function(e) {
             var x = that.canvas.offsetLeft + that.canvas.width - e.pageX;
             var y = e.pageY - that.canvas.offsetTop;
             if (10 <= x && x <= 30 && 10 <= y && y <= 30) that.next();
             else if (40 <= x && x <= 60 && 10 <= y && y <= 30) that.toggle();
             else if (70 <= x && x <= 90 && 10 <= y && y <= 30) that.last();
+            if (100 <= x && x <= 204 && 10 <= y && y <= 30) that.voluming = true;
         }, false);
+        canvas.addEventListener("mouseup", function(e) {
+            that.voluming = false;
+        }, false);
+        canvas.addEventListener("mousemove", function(e) {
+            if (that.voluming) {
+                var x = e.pageX - that.canvas.offsetLeft;
+                that.volume = Math.max(0, Math.min(100, x + 204 - canvas.width));
+                that.gain.gain.value = that.volume * 2 / 100;
+            }
+        })
         
         /* Draw instructions. */
         this.context.textBaseline = "middle";
@@ -108,17 +121,14 @@ function Visualizer() {
     
     /* Load an uploaded file. */
     this.load = function(files) {
-        
-        console.log(files);
-        var index = 0;
-        
+                
         for (var i = 0; i < files.length; i++) {
                         
             /* Get an individual file. */
             var file = files[i];
         
             /* Get the file index and add to list. */
-            index = this.files.length;
+            var index = this.files.length;
             this.files.push(file);
 
             /* Generate a row. */
@@ -130,8 +140,9 @@ function Visualizer() {
             
         }
         
+        
         /* Play if nothing is playing. */
-        if (this.state !== PLAYING) this.play(index-1);
+        if (this.state !== PLAYING) this.play(this.files.length - 1);
         
     }
     
@@ -173,6 +184,9 @@ function Visualizer() {
         analyser.connect(gain);
         gain.connect(this.audio.destination);
         source.buffer = this.buffer;
+        
+        /* Set volume. */
+        gain.gain.value = this.volume / 100;
 
         /* Check audio members and stop current song. */
         if (!source.start) source.start = source.noteOn;
@@ -194,6 +208,7 @@ function Visualizer() {
         this.switched = true;
         this.source = source;
         this.analyser = analyser;
+        this.gain = gain;
         
         /* Set ending. */
         this.source.onended = function() { 
@@ -244,6 +259,7 @@ function Visualizer() {
         /* Controls. */
         if (this.hover) {
             
+            /* Style. */
             this.context.fillStyle = "black";
             
             /* Time. */
@@ -254,6 +270,10 @@ function Visualizer() {
             this.context.textAlign = "left";
             this.context.fillText(minutes + ":" + seconds, 10, 10)
             
+            /* Volume. */
+            this.context.fillRect(this.canvas.width - 204, 18, 104, 4);
+            this.context.fillRect(this.canvas.width - 204 + this.volume, 10, 4, 20)
+            
             /* Next. */
             this.context.beginPath();
             this.context.moveTo(this.canvas.width - 30, 10);
@@ -261,7 +281,7 @@ function Visualizer() {
             this.context.lineTo(this.canvas.width - 30, 30);
             this.context.closePath();
             this.context.fill();
-            this.context.fillRect(this.canvas.width - 13, 10, 3, 20);
+            this.context.fillRect(this.canvas.width - 13, 10, 4, 20);
             
             /* Play pause. */
             if (this.state == PLAYING) {
@@ -283,7 +303,7 @@ function Visualizer() {
             this.context.lineTo(this.canvas.width - 70, 30);
             this.context.closePath();
             this.context.fill();
-            this.context.fillRect(this.canvas.width - 90, 10, 3, 20);
+            this.context.fillRect(this.canvas.width - 90, 10, 4, 20);
         
         }
     }
