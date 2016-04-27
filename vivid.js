@@ -55,6 +55,9 @@ function Visualizer() {
     this.files = [];
     this.cache = {};
     
+    /* Drawing. */
+    this.mode = new Bars();
+    
     /* Bind the visualizer to page components. */
     this.bind = function(canvas, upload, list) {
         
@@ -270,21 +273,22 @@ function Visualizer() {
         if (this.state == WAITING) return;
         
         /* Draw. */
-        this.draw(this.canvas, this.context, this.analyser, this.cache);
+        this.mode.draw(this.canvas, this.context, this.analyser);
         
         /* Controls. */
         if (this.hover) {
             
             /* Style. */
-            this.context.fillStyle = "black";
+            this.context.fillStyle = "lightgray";
             
             /* Name and time. */
             var time = Date.now() - this.source.time;
             var minutes = Math.floor((time / 1000) / 60);
             var seconds = ("0" + Math.floor((time / 1000) % 60)).substr(-2);
+            var name = this.name ? " | " + (this.name.length > 43 ? this.name.substr(0, 40) + "..." : this.name) : "";
             this.context.textBaseline = "top";
             this.context.textAlign = "left";
-            this.context.fillText(minutes + ":" + seconds + (this.name ? " | " + this.name : ""), 10, 10)
+            this.context.fillText(minutes + ":" + seconds + name, 10, 10)
             
             /* Volume. */
             this.context.fillRect(this.canvas.width - 204, 18, 104, 4);
@@ -324,9 +328,6 @@ function Visualizer() {
         }
     }
     
-    /* Define the draw function. */
-    this.draw = bars;
-    
     /* Start the visualizer. */
     this.start = function() {
         this.audio = audio();
@@ -335,24 +336,31 @@ function Visualizer() {
     
 }
 
-/* Visualizer functions. */
-function bars(canvas, context, analyser, cache) {
+function Bars() {
     
-    context.fillStyle = "lightgray";
+    this.config = {};
+    this.config.gap = 0;
+    this.config.bottom = 0;
+    this.config.start = 0;
+    this.config.range = 48;
+    this.config.count = 48;
     
-    var gap = 0;
-    var start = 0;
-    var range = 64;
-    var count = range;
-    var width = (canvas.width - (count+1)*gap) / count;
-    var step = Math.round(range / count);
-    
-    var array = new Uint8Array(this.analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(array);
-    
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    for (var i = 0; i < count; i++) {
-        var value = array[i * step + start];
-        context.fillRect(Math.floor(i * (width + gap) + gap), canvas.height - value, Math.ceil(width), canvas.height);
+    this.draw = function(canvas, context, analyser) {
+        var array = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(array);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        var width = (canvas.width - (this.config.range+1)*this.config.gap) / this.config.range;
+        var step = Math.round(this.config.range / Math.min(this.config.range, this.config.count));
+        
+        for (var i = 0; i < this.config.range; i++) {
+            var value = array[i * step + this.config.start];
+            var x = Math.floor(i * (width + this.config.gap) + this.config.gap)
+            var y = canvas.height - value;
+            context.fillRect(x, y, Math.ceil(width), value - this.config.bottom);
+        }
     }
+    
 }
+
+
