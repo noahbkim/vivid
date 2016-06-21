@@ -1,12 +1,12 @@
 body {
     margin: 4em auto;
     width: 800px;
-    background-color: lightgrey;
+    background-color: black;
     font-family: sans-serif;
 }
 
 #canvas {
-    background-color: white;
+    background-color: black;
     border-radius: 4px;
 }
 

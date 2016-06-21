@@ -55,6 +55,13 @@ function Visualizer() {
     this.files = [];
     this.cache = {};
     
+    /* Theme info. */
+    this.theme = {};
+    this.theme.color = {};
+    this.theme.color.r = 256;
+    this.theme.color.g = 0;
+    this.theme.color.b = 64;
+    
     /* Drawing. */
     this.mode = new Bars();
     
@@ -76,7 +83,7 @@ function Visualizer() {
         /* Define drag and drop. */        
         this.upload.onchange = function() {
             if (that.upload.files.length === 0) return;
-            that.load(that.upload.files)
+            that.load(that.upload.files);
         }        
         body.addEventListener("dragover", function(e) {
             e.stopPropagation();
@@ -119,8 +126,9 @@ function Visualizer() {
         this.context.textBaseline = "middle";
         this.context.textAlign = "center";
         this.context.font = "20px sans-serif";
+        this.context.fillStyle = "white";
         this.context.fillText("drag and drop a music file to upload and play", 400, 175);
-        this.context.fillStyle = "gray";
+        this.context.fillStyle = "black";
 
     }
     
@@ -273,22 +281,26 @@ function Visualizer() {
         if (this.state == WAITING) return;
         
         /* Draw. */
-        this.mode.draw(this.canvas, this.context, this.analyser);
+        this.mode.draw(this.canvas, this.context, this.analyser, this.theme);
+        
+        
+        var name = this.name ? (this.name.length > 43 ? this.name.substr(0, 40) + "..." : this.name) : "";
+        this.context.textBaseline = "top";
+        this.context.textAlign = "left";
+        this.context.fillStyle = "white";
+        this.context.fillText(name, 10, 10);
         
         /* Controls. */
         if (this.hover) {
             
             /* Style. */
-            this.context.fillStyle = "lightgray";
+            //this.context.fillStyle = "lightgray";
             
             /* Name and time. */
             var time = Date.now() - this.source.time;
             var minutes = Math.floor((time / 1000) / 60);
             var seconds = ("0" + Math.floor((time / 1000) % 60)).substr(-2);
-            var name = this.name ? " | " + (this.name.length > 43 ? this.name.substr(0, 40) + "..." : this.name) : "";
-            this.context.textBaseline = "top";
-            this.context.textAlign = "left";
-            this.context.fillText(minutes + ":" + seconds + name, 10, 10)
+            this.context.fillText(" | " + minutes + ":" + seconds, 10 + this.context.measureText(name).width, 10);
             
             /* Volume. */
             this.context.fillRect(this.canvas.width - 204, 18, 104, 4);
@@ -339,13 +351,14 @@ function Visualizer() {
 function Bars() {
     
     this.config = {};
-    this.config.gap = 0;
+    this.config.gap = 3;
     this.config.bottom = 0;
+    this.config.height = 400;
     this.config.start = 0;
-    this.config.range = 48;
-    this.config.count = 48;
+    this.config.range = 75;
+    this.config.count = 75;
     
-    this.draw = function(canvas, context, analyser) {
+    this.draw = function(canvas, context, analyser, theme) {
         var array = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(array);
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -354,10 +367,12 @@ function Bars() {
         var step = Math.round(this.config.range / Math.min(this.config.range, this.config.count));
         
         for (var i = 0; i < this.config.range; i++) {
-            var value = array[i * step + this.config.start];
+            var value = Math.pow(array[i * step + this.config.start],2)/256/256;
             var x = Math.floor(i * (width + this.config.gap) + this.config.gap)
-            var y = canvas.height - value;
-            context.fillRect(x, y, Math.ceil(width), value - this.config.bottom);
+            var y = canvas.height - value*this.config.height;
+            
+            context.fillStyle = "rgb("+Math.floor(value*theme.color.r)+","+Math.floor(value*theme.color.g)+","+Math.floor(value*theme.color.b)+")";
+            context.fillRect(x, y, Math.ceil(width), value*this.config.height - this.config.bottom);
         }
     }
     
