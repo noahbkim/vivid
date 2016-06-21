@@ -283,6 +283,13 @@ function Visualizer() {
         /* Draw. */
         this.mode.draw(this.canvas, this.context, this.analyser, this.theme);
         
+        
+        var name = this.name ? (this.name.length > 43 ? this.name.substr(0, 40) + "..." : this.name) : "";
+        this.context.textBaseline = "top";
+        this.context.textAlign = "left";
+        this.context.fillStyle = "white";
+        this.context.fillText(name, 10, 10);
+        
         /* Controls. */
         if (this.hover) {
             
@@ -293,11 +300,7 @@ function Visualizer() {
             var time = Date.now() - this.source.time;
             var minutes = Math.floor((time / 1000) / 60);
             var seconds = ("0" + Math.floor((time / 1000) % 60)).substr(-2);
-            var name = this.name ? " | " + (this.name.length > 43 ? this.name.substr(0, 40) + "..." : this.name) : "";
-            this.context.textBaseline = "top";
-            this.context.textAlign = "left";
-            this.context.fillStyle = "white";
-            this.context.fillText(minutes + ":" + seconds + name, 10, 10)
+            this.context.fillText(" | " + minutes + ":" + seconds, 10 + this.context.measureText(name).width, 10);
             
             /* Volume. */
             this.context.fillRect(this.canvas.width - 204, 18, 104, 4);
@@ -368,7 +371,7 @@ function Bars() {
             var x = Math.floor(i * (width + this.config.gap) + this.config.gap)
             var y = canvas.height - value*this.config.height;
             
-            context.fillStyle = "rgb("+Math.floor(value*this.theme.r)+","+Math.floor(value*this.theme.g)+","+Math.floor(value*this.theme.b)+")";
+            context.fillStyle = "rgb("+Math.floor(value*theme.color.r)+","+Math.floor(value*theme.color.g)+","+Math.floor(value*theme.color.b)+")";
             context.fillRect(x, y, Math.ceil(width), value*this.config.height - this.config.bottom);
         }
     }
