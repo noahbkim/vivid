@@ -355,8 +355,8 @@ function Bars() {
     this.config.bottom = 0;
     this.config.height = 400;
     this.config.start = 0;
-    this.config.range = 75;
-    this.config.count = 75;
+    this.config.range = 32;
+    this.config.count = 32;
     
     this.draw = function(canvas, context, analyser, theme) {
         var array = new Uint8Array(analyser.frequencyBinCount);
