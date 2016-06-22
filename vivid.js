@@ -50,6 +50,7 @@ function Visualizer() {
     this.hover = false;
     this.name = "";
     this.fullname = "";
+    this.starttime = new Date();
     this.time = 0;
     this.index = -1;
     this.files = [];
@@ -286,7 +287,7 @@ function Visualizer() {
         if (this.state == WAITING) return;
         
         /* Draw. */
-        this.mode.draw(this.canvas, this.context, this.analyser, this.theme);
+        this.mode.draw(this.canvas, this.context, this);
         
         
         var name = this.name ? (this.name.length > 43 ? this.name.substr(0, 40) + "..." : this.name) : "";
@@ -362,9 +363,9 @@ function Bars() {
     this.config.count = 50;
     this.color = 0;
     
-    this.draw = function(canvas, context, analyser, theme) {
-        var array = new Uint8Array(analyser.frequencyBinCount);
-        analyser.getByteFrequencyData(array);
+    this.draw = function(canvas, context, visualizer) {
+        var array = new Uint8Array(visualizer.analyser.frequencyBinCount);
+        visualizer.analyser.getByteFrequencyData(array);
         context.clearRect(0, 0, canvas.width, canvas.height);
         
         var width = (canvas.width - (this.config.range+1)*this.config.gap) / this.config.range;
@@ -375,7 +376,7 @@ function Bars() {
             var x = Math.floor(i * (width + this.config.gap) + this.config.gap)
             var y = canvas.height - value*this.config.height;
             
-            context.fillStyle = "hsl(" + Math.ceil(this.color/600) + ",100%,50%)";
+            context.fillStyle = "hsl(" + Math.ceil((new Date()-visualizer.starttime)/1000) + ",100%,50%)";
             context.fillRect(x, y, Math.ceil(width), value*this.config.height - this.config.bottom);
             this.color++;
         }
