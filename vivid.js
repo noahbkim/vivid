@@ -354,9 +354,8 @@ function Bars() {
     this.config.bottom = 0;
     this.config.height = 400;
     this.config.start = 0;
-    this.config.range = 75;
-    this.config.count = 75;
-    this.color = 0;
+    this.config.range = 32;
+    this.config.count = 32;
     
     this.draw = function(canvas, context, analyser, theme) {
         var array = new Uint8Array(analyser.frequencyBinCount);
@@ -371,7 +370,6 @@ function Bars() {
             var x = Math.floor(i * (width + this.config.gap) + this.config.gap)
             var y = canvas.height - value*this.config.height;
             
-            //context.fillStyle = "rgb("+Math.floor(value*theme.color.r)+","+Math.floor(value*theme.color.g)+","+Math.floor(value*theme.color.b)+")";
             context.fillStyle = "hsl(" + Math.ceil(this.color/600) + ",100%,50%)";
             context.fillRect(x, y, Math.ceil(width), value*this.config.height - this.config.bottom);
             this.color++;
