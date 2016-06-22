@@ -182,10 +182,10 @@ function Visualizer() {
                 var classes = document.getElementsByTagName("span");
                 for (var i = 0; i < classes.length; i++) {
                     console.log(classes[i].id);
-                    if (classes[i].id == that.fullname) {
-                        classes[i].style.fontWeight = "normal";
-                    } else if (classes[i].id == that.files[index].name) {
+                    if (classes[i].id == that.files[index].name) {
                         classes[i].style.fontWeight = "bold";  
+                    } else if (classes[i].id == that.fullname) {
+                        classes[i].style.fontWeight = "normal";
                     }
                 }
                 that.fullname = that.files[index].name;
@@ -230,7 +230,7 @@ function Visualizer() {
             this.time = 0;
         }
         
-        /* Set allthe the things. */
+        /* Set all the things. */
         this.state = PLAYING;
         this.switched = true;
         this.source = source;
@@ -249,12 +249,13 @@ function Visualizer() {
     
     this.next = function() {
         if (this.index == -1) return;
-        if (this.index+1 < this.files.length) this.play(this.index+1);
+        this.play((this.index+1)%this.files.length);
     }
     
     this.last = function() {
         if (this.index == -1) return;
-        if (this.index-1 >= 0) this.play(this.index-1);
+        if (this.time >= 3000) this.play(this.index);
+        else this.play((this.index-1+this.files.length)%this.files.length);
     }
     
     /* Pause. */
@@ -293,13 +294,11 @@ function Visualizer() {
         /* Controls. */
         if (this.hover) {
             
-            /* Style. */
-            //this.context.fillStyle = "lightgray";
-            
             /* Name and time. */
-            var time = Date.now() - this.source.time;
-            var minutes = Math.floor((time / 1000) / 60);
-            var seconds = ("0" + Math.floor((time / 1000) % 60)).substr(-2);
+            if (this.state != PAUSED) this.time = Date.now() - this.source.time;
+            
+            var minutes = Math.floor((this.time / 1000) / 60);
+            var seconds = ("0" + Math.floor((this.time / 1000) % 60)).substr(-2);
             this.context.fillText(" | " + minutes + ":" + seconds, 10 + this.context.measureText(name).width, 10);
             
             /* Volume. */
@@ -357,6 +356,7 @@ function Bars() {
     this.config.start = 0;
     this.config.range = 75;
     this.config.count = 75;
+    this.color = 0;
     
     this.draw = function(canvas, context, analyser, theme) {
         var array = new Uint8Array(analyser.frequencyBinCount);
@@ -367,15 +367,15 @@ function Bars() {
         var step = Math.round(this.config.range / Math.min(this.config.range, this.config.count));
         
         for (var i = 0; i < this.config.range; i++) {
-            var value = Math.pow(array[i * step + this.config.start],2)/256/256;
+            var value = Math.pow(array[i * step + this.config.start]/256,8);
             var x = Math.floor(i * (width + this.config.gap) + this.config.gap)
             var y = canvas.height - value*this.config.height;
             
-            context.fillStyle = "rgb("+Math.floor(value*theme.color.r)+","+Math.floor(value*theme.color.g)+","+Math.floor(value*theme.color.b)+")";
+            //context.fillStyle = "rgb("+Math.floor(value*theme.color.r)+","+Math.floor(value*theme.color.g)+","+Math.floor(value*theme.color.b)+")";
+            context.fillStyle = "hsl(" + Math.ceil(this.color/600) + ",100%,50%)";
             context.fillRect(x, y, Math.ceil(width), value*this.config.height - this.config.bottom);
+            this.color++;
         }
     }
     
 }
-
-
