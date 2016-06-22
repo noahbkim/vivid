@@ -376,7 +376,7 @@ function Bars() {
             var x = Math.floor(i * (width + this.config.gap) + this.config.gap)
             var y = canvas.height - value*this.config.height;
             
-            context.fillStyle = "hsl(" + Math.ceil((new Date()-visualizer.starttime)/1000) + ",100%,50%)";
+            context.fillStyle = "hsl(" + Math.ceil((new Date()-visualizer.starttime)/1000) + ",100%,"+Math.floor(value*45+5)+"%)";
             context.fillRect(x, y, Math.ceil(width), value*this.config.height - this.config.bottom);
             this.color++;
         }
