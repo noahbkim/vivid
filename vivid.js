@@ -239,10 +239,13 @@ function Visualizer() {
         this.analyser = analyser;
         this.gain = gain;
         
+        var that = this;
+        
         /* Set ending. */
         this.source.onended = function() { 
-            if (!this.switched) this.state = WAITING;
-            this.switched = false;
+            that.next();
+            //if (!this.switched) this.state = WAITING;
+            //this.switched = false;
         };
         
         /* Animate. */
