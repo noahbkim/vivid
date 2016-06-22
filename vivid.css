@@ -3,6 +3,7 @@ body {
     width: 800px;
     background-color: black;
     font-family: sans-serif;
+    overflow: hidden;
 }
 
 #canvas {
@@ -23,4 +24,14 @@ body {
 
 #upload {
     display: none;
+}
+
+div#footer {
+    color: white;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1em;
 }

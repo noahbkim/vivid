@@ -91,7 +91,7 @@ function Visualizer() {
         
         /* Play and pause. */
         canvas.addEventListener("mouseover", function(e) {
-            that.hover = true;
+            that.hover = true
         }, false);
         canvas.addEventListener("mouseout", function(e) {
             that.hover = false;
@@ -113,6 +113,15 @@ function Visualizer() {
                 that.volume = Math.max(0, Math.min(100, x + 204 - canvas.width));
                 that.gain.gain.value = that.volume * 2 / 100;
             }
+            var x = that.canvas.offsetLeft + that.canvas.width - e.pageX;
+            var y = e.pageY - that.canvas.offsetTop;
+            that.hover = true;
+            if (10 <= x && x <= 30 && 10 <= y && y <= 30 ||
+            40 <= x && x <= 60 && 10 <= y && y <= 30 ||
+            70 <= x && x <= 90 && 10 <= y && y <= 30 ||
+            100 <= x && x <= 204 && 10 <= y && y <= 30 ||
+            this.voluming) document.getElementById("canvas").style.cursor = "pointer";
+            else document.getElementById("canvas").style.cursor = "default";
         })
         
         /* Draw instructions. */
