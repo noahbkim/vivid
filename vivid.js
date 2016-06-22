@@ -242,10 +242,9 @@ function Visualizer() {
         var that = this;
         
         /* Set ending. */
-        this.source.onended = function() { 
-            that.next();
-            //if (!this.switched) this.state = WAITING;
-            //this.switched = false;
+        this.source.onended = function(e) {
+            if (!this.switched) this.state = WAITING;
+            this.switched = false;
         };
         
         /* Animate. */
