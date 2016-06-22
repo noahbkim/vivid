@@ -55,13 +55,6 @@ function Visualizer() {
     this.files = [];
     this.cache = {};
     
-    /* Theme info. */
-    this.theme = {};
-    this.theme.color = {};
-    this.theme.color.r = 256;
-    this.theme.color.g = 0;
-    this.theme.color.b = 64;
-    
     /* Drawing. */
     this.mode = new Bars();
     
@@ -354,8 +347,9 @@ function Bars() {
     this.config.bottom = 0;
     this.config.height = 400;
     this.config.start = 0;
-    this.config.range = 32;
-    this.config.count = 32;
+    this.config.range = 50;
+    this.config.count = 50;
+    this.color = 0;
     
     this.draw = function(canvas, context, analyser, theme) {
         var array = new Uint8Array(analyser.frequencyBinCount);
