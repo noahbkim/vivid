@@ -151,7 +151,8 @@ function Player() {
 	
 	}
 	
-	/** Get equalizer data. *(/
+	/** Get equalizer data. */
 	
 
 }
+
