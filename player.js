@@ -180,7 +180,8 @@ function Player() {
     
     /** Called when the audio stops. */
     this.onEnded = function() {
-    	if (this.getElapsedTime() >= this.getTotalTime()) this.pause();
+        if (this.state == PLAY)
+            if (this.getElapsedTime() >= this.getTotalTime()) this.pause();
     }
     
     
