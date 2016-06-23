@@ -13,8 +13,8 @@ function Song() {
 	var that = this;
 	
 	/* Who am I??? */
-	this.name;
-	this.length;
+	this.name = "";
+	this.length = 0;
 
 	/* Type and state. */
 	this.type = Song.LOCAL;
@@ -25,7 +25,7 @@ function Song() {
 	Song.cache[this.index] = this;
 	
 	/* Content. */
-	this.buffer;
+	this.buffer = null;
 
 }
 

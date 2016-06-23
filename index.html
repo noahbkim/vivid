@@ -3,15 +3,19 @@
         <script type="text/javascript" src="event.js"></script>
         <script type="text/javascript" src="song.js"></script>
         <script type="text/javascript" src="player.js"></script>
-        <script type="text/javascript"></script>
+        <script type="text/javascript">
+            var player = new Player();
+        </script>
     </head>
     <body>
         <form name="upload">
             <input name="file" type="file">
             <script type="text/javascript">
-                var files;
+                var file;
+                var song;
                 document.forms.upload.file.addEventListener("change", function(event) {
-                    files = event.target.files;
+                    file = event.target.files[0];
+                    song = Song.fromFile(file);
                 });
             </script>
         </form>

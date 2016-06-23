@@ -6,7 +6,7 @@ volume. It also offers access to equalizer and waveform data. */
 /** Music song cursor. */
 function Cursor() {
 
-	/* Start datetime and elapsed song time both in milliseconds. */
+	/* Start datetime and elapsed song time both in SECONDS. */
 	this.start = 0;
 	this.elapsed = 0;
 	
@@ -86,11 +86,11 @@ function Player() {
 		this.prepare(this.song);
 
 		/* Set cursor start time to now and subtract elapsed time. */
-		this.cursor.start = Date.now();
+		this.cursor.start = Date.now() / 1000;
 		this.cursor.start -= this.cursor.elapsed;
 		
 		/* Play at current time. */
-		this.source.start(0, this.cursor.elapsed / 1000)
+		this.source.start(0, this.cursor.elapsed)
 		
 		/* Tell everyone. */
 		this.playing = true;
@@ -106,7 +106,7 @@ function Player() {
 		if (!this.loaded) { console.warn("Nothing loaded!"); return; }
 		
 		/* Calculate the elapsed cursor time. */
-		this.cursor.elapsed = Date.now() - this.cursor.start;
+		this.cursor.elapsed = Date.now() / 1000 - this.cursor.start;
 		
 		/* Stop the audio and create a new one. */
 		this.source.stop();
@@ -137,6 +137,17 @@ function Player() {
 	/** Set the elapsed track time in seconds. */
 	this.setElapsed = function(time) {
 	
+		/* Check if loaded. */
+		if (!this.loaded) { console.warn("Nothing loaded!"); return; }
+        
+        /* Check if should play after. */
+        var resume = this.playing;
+        
+        /* Pause the player, set the time, play again. */
+        if (this.playing) this.pause();
+    	this.cursor.elapsed = Math.max(0, Math.min(this.song.length, time));
+    	if (resume) this.play();
+        
 	}
 	
 	/** Get the elapsed track time in seconds. */
@@ -146,12 +157,23 @@ function Player() {
 		if (!this.loaded) { console.warn("Nothing loaded!"); return; }
 	
 		/* Calculate if playing, otherwise return elapsed. */
-		if (this.playing) return (Date.now() - this.cursor.start) / 1000;
-		else return this.cursor.elapsed / 1000;
+		if (this.playing) return (Date.now() / 1000 - this.cursor.start);
+		else return this.cursor.elapsed;
 	
 	}
 	
 	/** Get equalizer data. */
+    this.getEqualizer = function() {
+        
+        /* Check if loaded. */
+		if (!this.loaded) { console.warn("Nothing loaded!"); return; }
+
+        /* Get the analyzer array. */
+        var array = new Uint8Array(this.analyser.frequencyBinCount);
+        this.analyser.getByteFrequencyData(array);
+        return array;
+        
+    }
 	
 
 }
