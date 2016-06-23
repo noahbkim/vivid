@@ -1,9 +1,9 @@
 <html>
     <head>
+        <script type="text/javascript" src="event.js"></script>
+        <script type="text/javascript" src="song.js"></script>
         <script type="text/javascript" src="player.js"></script>
-        <script type="text/javascript">
-        	var player = new Player();
-        </script>
+        <script type="text/javascript"></script>
     </head>
     <body>
         <form name="upload">
@@ -12,7 +12,6 @@
                 var files;
                 document.forms.upload.file.addEventListener("change", function(event) {
                     files = event.target.files;
-                    player.loadFile(files[0], false);
                 });
             </script>
         </form>
