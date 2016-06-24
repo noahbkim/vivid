@@ -44,11 +44,38 @@ function Player() {
     this.loaded = false;
     this.playing = false;
     
+    /** Miscellaneous properties. */
+    this.ignoreManualSourceStop = false;  // Used to prevent manual ended callbacks
+    
+    /** Unload the current song. */
+    this.unload = function() {
+    
+		/* Check if already playing or not loaded. */
+		if (!this.loaded) { console.warn("Nothing loaded!"); return; } 
+		   	
+    	/* Check if playing. */
+    	if (this.playing) this.pause();
+    	
+    	/* Unbind everything. */
+    	this.song.clearEventListeners();
+    	
+    	/* Update states and broadcast. */
+    	this.loaded = false;
+    	this.emit("unloaded", this.song)
+    	
+    }
+    
     /** Load a song entirely newly. */
     this.load = function(song, autoplay) {
     
+    	/* Check song. */
+    	if (!(song && song.state && song.state == Song.DONE)) {
+    		console.warn("Song not playable.");
+    		return;
+    	}
+    
     	/* Check if buffer. */
-    	if (this.song && this.playing) this.pause();
+    	if (this.loaded) this.unload();
 		
 		/* Set song. */
 		this.song = song;
@@ -72,6 +99,9 @@ function Player() {
     	this.source = this.audio.createBufferSource();
     	this.source.connect(this.analyser);
 		this.source.buffer = song.buffer;
+		
+		/* Bind ended callback internally. */
+		this.source.onended = function() { that.onEnded(); }
     
     }
     
@@ -89,11 +119,16 @@ function Player() {
 		this.cursor.start = Date.now() / 1000;
 		this.cursor.start -= this.cursor.elapsed;
 		
+		/* Reset source stop ignore flag. */
+		/* this.ignoreManualSourceStop = false; */
+		
+		/* Set playing before start to prevent callback collisions. */
+		this.playing = true;
+		
 		/* Play at current time. */
 		this.source.start(0, this.cursor.elapsed)
 		
 		/* Tell everyone. */
-		this.playing = true;
 		this.emit("playing", this.song)
 	
 	}
@@ -108,13 +143,34 @@ function Player() {
 		/* Calculate the elapsed cursor time. */
 		this.cursor.elapsed = Date.now() / 1000 - this.cursor.start;
 		
+		/* Set paused before stop to prevent callback collisions. */
+		this.playing = false;
+		
+		/* Enable source stop. Will be reset by the onEnded call. */
+		this.ignoreManualSourceStop = true;
+
 		/* Stop the audio and create a new one. */
 		this.source.stop();
 		
 		/* Tell everyone. */
-		this.playing = false;
 		this.emit("paused", this.song)
 		
+	}
+	
+	/** Called when a songs ends. */
+	this.onEnded = function() {
+	
+		/* If it was stopped by pause. */
+		if (this.ignoreManualSourceStop) {
+			this.ignoreManualSourceStop = false;
+			return;
+		}
+		
+		/* Actually ended. */
+		console.log("Reached the end!");
+		this.pause();
+		this.cursor.elapsed = this.song.length;
+	
 	}
 	
 	/** Set the volume, typically to a value between 0 and 1. */
@@ -174,7 +230,6 @@ function Player() {
         return array;
         
     }
-	
 
 }
 

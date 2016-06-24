@@ -8,6 +8,9 @@ function Song() {
 
 	/* Inherit. */
 	Propagatenator.call(this);
+	
+	/* As a side note, do not bind anything to songs, as they are 
+	cleared of all bindings when unloaded. */
 
 	/* Self. */
 	var that = this;
@@ -48,11 +51,16 @@ Song.fromFile = function(file) {
 	reader.onload = function(event) {
 		var data = event.target.result;
 		context.decodeAudioData(data, function(buffer) {
+		
+			/* Throw all the buffer info at the song. */
 			song.buffer = buffer;
 			song.length = buffer.duration;
+			
+			/* Change state and broadcast. */
 			song.state = Song.DONE;  // Also cache by file
 			Song.cache[file] = song;
 			song.emit("loaded");
+			
 		});
 	}
 	reader.onerror = function(event) {
