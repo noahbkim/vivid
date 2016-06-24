@@ -1,23 +1,43 @@
 <html>
     <head>
+    	<title>Vivid</title>
+        <link type="text/css" rel="stylesheet" href="vivid.css">
         <script type="text/javascript" src="event.js"></script>
         <script type="text/javascript" src="song.js"></script>
         <script type="text/javascript" src="player.js"></script>
-        <script type="text/javascript">
-            var player = new Player();
-        </script>
     </head>
     <body>
+    
+    	<!-- Set up a fullscreen canvas. -->
+    	<canvas id="canvas"></canvas>
+    
         <form name="upload">
-            <input name="file" type="file">
+            <input name="file" type="file"/>
             <script type="text/javascript">
                 var file;
                 var song;
                 document.forms.upload.file.addEventListener("change", function(event) {
                     file = event.target.files[0];
                     song = Song.fromFile(file);
+                    player.load(song);
                 });
             </script>
         </form>
+        
+        <!-- Information. -->
+        <div id="information" class="bar">
+        	<div id="blah" class="left">blah blah blah</div>
+    	</div>
+        
+        <!-- Controls. -->
+        <div id="controls" class="bar">
+        	<div id="elapsed" class="left">0:00</div>
+        	<input id="time" type="range" min="0" max="100"/>
+        	<div id="total" class="right">0:00</div>
+    	</div>
+    	
+    	<!-- Run main script. -->
+        <script type="text/javascript" src="vivid.js"></script>
+        
     </body>
 </html>

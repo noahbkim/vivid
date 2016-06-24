@@ -7,7 +7,7 @@ current version. */
 function Song() {
 
 	/* Inherit. */
-	Propagatenator.call(this);
+	Dispatcher.call(this);
 	
 	/* As a side note, do not bind anything to songs, as they are 
 	cleared of all bindings when unloaded. */
@@ -89,4 +89,3 @@ Song.FAIL = 3;
 /* Song types. */
 Song.MEDIA = "media";
 Song.LOCAL = "local";
-

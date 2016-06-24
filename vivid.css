@@ -1,0 +1,42 @@
+html, body {
+	overflow: hidden;
+	background-color: green;
+	font-family: sans-serif;
+}
+
+canvas {
+	display: block;
+	position: absolute;
+	top: 0; bottom: 0; left: 0; right: 0;
+	margin: auto;
+	background-color: white; /* inherit */
+	z-index: 0;
+}
+
+.bar {
+	font-size: 14px;
+	position: absolute;
+	left: 0;
+	width: 100%;
+	transition: transform 0.5s ease-out;
+}
+
+#information {
+	top: 0;
+	transform: translateY(-100%);
+}
+
+#controls {
+	bottom: 0; 
+	text-align: center;
+	transform: translateY(100%);
+}
+
+#time, #elapsed, #total { padding: 8px 0; }
+#elapsed, #total { width: 50px; margin-bottom: 1px; }
+#elapsed { text-align: center; padding-left: 7px; }
+#total { text-align: center; padding-right: 7px; }
+#time { width: calc(100% - 130px); }
+
+.left { float: left; }
+.right { float: right; }

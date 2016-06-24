@@ -1,5 +1,5 @@
 /** Event listener mockup. */
-function Propagatenator() {
+function Dispatcher() {
 	
 	/* Event to callback list. */
 	var map = {};

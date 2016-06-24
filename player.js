@@ -19,7 +19,7 @@ function Cursor() {
 function Player() {
 
 	/* Superclass. */
-	Propagatenator.call(this);
+	Dispatcher.call(this);
 
     /* Reference to self. */
 	var that = this;
@@ -203,6 +203,9 @@ function Player() {
         if (this.playing) this.pause();
     	this.cursor.elapsed = Math.max(0, Math.min(this.song.length, time));
     	if (resume) this.play();
+    	
+    	/* Notify. */
+    	this.emit("elapsed", this.cursor.elapsed);
         
 	}
 	
