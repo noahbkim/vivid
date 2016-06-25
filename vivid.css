@@ -1,9 +1,10 @@
+/* General styles. */
 html, body {
 	overflow: hidden;
-	background-color: green;
 	font-family: sans-serif;
 }
 
+/* Center the canvas. */
 canvas {
 	display: block;
 	position: absolute;
@@ -13,6 +14,7 @@ canvas {
 	z-index: 0;
 }
 
+/* Control menu bars. */
 .bar {
 	position: absolute;
 	width: 100%;
@@ -20,31 +22,58 @@ canvas {
     height: 35px;
 	font-size: 16px;
 	transition: all 0.5s ease-out;
-    vertical-align: top;
+    text-align: center;
 }
 
+/* Bar components. */
 .bar .component {
     height: 35px;
     line-height: 35px;
 }
 
-.bar .component:first-of-type { padding-left: 10px; }
-.bar .component:last-of-type { padding-right: 10px; }
+/* Pad the left and right ends of the bar. */
+.bar .component.left.end { padding-left: 10px; }
+.bar .component.right.end { padding-right: 10px; }
 
+/* The last, play, and next buttons. Try to think of a better way to get them always centered. */
+/* .buttons { position: absolute; width: 20%; left: 0px; margin: 0 40%; z-index: 1; } */
+.button { display: inline-block; padding: 0px 10px; cursor: pointer; color: lightgray; }
+
+/* Move volume and title above buttons. */
+/* #volume-stuff { position: absolute; right: 0; z-index: 2; }
+#title { position: absolute: left: 0; z-index: 2; } */
+
+/* Make play wide enough to not change width when pause. */
+#play { min-width: 60px; }
+#level { min-width: 40px; text-align: right; }
+
+/* Make the title cut off at a point. */
+/* #title { 
+	max-width: 40%; 
+	text-overflow: ellipsis; 
+	white-space: nowrap;
+	overflow: hidden;
+} */
+
+/* Prevent input components from being weird. */
 input.component { margin: 0; }
+
+/* Give the audio level some space. */
 #level { padding-left: 10px; }
 
+/* Top menu bar. */
 #information {
 	top: 0;
 	opacity: 0;
 }
 
+/* Bottom menu bar. */
 #controls {
 	bottom: 0; 
 	opacity: 0;
-    text-align: center;
 }
 
+/* Calculate width of time based on side elements. */
 #time { width: calc(100% - 130px); }
 #elapsed, #total { width: 45px; }
 

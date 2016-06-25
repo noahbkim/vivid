@@ -1,11 +1,33 @@
 /** A set of tools for the Vivid visualizer. */
 
+/* Convenience. */
+function formatTime(seconds) {
+	var s = Math.floor(seconds) % 60;
+	var m = Math.floor(seconds / 60);
+	return m + ":" + ("0"+s).substr(-2);
+}
+
 /* Create a player. */
 var player = new Player();
 
-/* Grab the footer controls. */
+/* Grab controls. */
 var controls = document.getElementById("controls");
 var information = document.getElementById("information")
+var buttons = {
+	last: document.getElementById("last"),
+	play: document.getElementById("play"),
+	next: document.getElementById("next"),
+}
+var displays = {
+	volume: document.getElementById("level"),
+	title: document.getElementById("title"),
+	elapsed: document.getElementById("elapsed"),
+	total: document.getElementById("total"),
+}
+var inputs = {
+	time: document.getElementById("time"),
+	volume: document.getElementById("volume"),
+}
 
 /* Set up the controls manager. */
 var overlay = new (function Overlay() {
@@ -16,11 +38,14 @@ var overlay = new (function Overlay() {
 	/* Cooldown for displaying the controls. */
 	this.cooldown = 0;
 	this.cooldownStart = 20;
-	this.cooldownInterval = 0.5;
+	this.cooldownInterval = 2;
 	this.lastMouseX = 0;
 	this.lastMouseY = 0;
 	this.mouseInside = false;
 	this.visible = false;
+	
+	/* If the time slider is being held down. */
+	this.elapsedHeldDown = false;
     
 	/* Bind mouse move to showing the controls. */
 	document.addEventListener("mousemove", function(event) {
@@ -32,6 +57,80 @@ var overlay = new (function Overlay() {
 		that.visible = true;
 	});
 	
+	/* Drag and drop. */
+	document.body.addEventListener("dragover", function(event) {
+		event.stopPropagation();
+		event.preventDefault();
+		event.dataTransfer.dropEffect = "copy";
+	}, false);
+	document.body.addEventListener("drop", function(event) {
+		event.stopPropagation();
+		event.preventDefault();
+		that.load(event.dataTransfer.files);
+	}, false);
+	
+	/* Pause and play. */
+	buttons.play.addEventListener("click", function(event) {
+		if (player.playing) player.pause();
+		else player.play();
+	});
+	
+	player.addEventListener("play", function() { buttons.play.innerHTML = "pause"; });
+	player.addEventListener("pause", function() { buttons.play.innerHTML = "play"; });
+
+	/* If elapsed time is being manipulated. */
+	inputs.time.addEventListener("mousedown", function(event) {
+		that.elapsedHeldDown = true;
+	});
+	inputs.time.addEventListener("mouseup", function() {
+		that.elapsedHeldDown = false;
+	});
+	inputs.time.addEventListener("change", function() {
+		player.setElapsed(inputs.time.value / 10);
+	});
+	
+	/* Constantly update times. */
+	setInterval(function() {
+		if (player.playing && !that.elapsedHeldDown) {
+			var elapsed = Math.floor(player.getElapsed());
+			inputs.time.value = elapsed * 10;
+			displays.elapsed.innerHTML = formatTime(elapsed)
+		}
+	}, 50);
+	
+	/* Volume. */
+	inputs.volume.addEventListener("input", function() {
+		player.setVolume(inputs.volume.value / 100);
+		displays.volume.innerHTML = inputs.volume.value + "%";
+	});
+	
+	/* Change title when song loaded. */
+	player.addEventListener("loaded", function(song) {
+		displays.title.innerHTML = song.name;
+		inputs.time.disabled = false;
+		inputs.time.max = song.length*10;
+		for (button in buttons) buttons[button].style.color = "black";
+		displays.elapsed.innerHTML = formatTime(0);
+		displays.total.innerHTML = formatTime(player.song.length);
+	});
+	
+	/* When song unloaded. */
+	player.addEventListener("unloaded", function() {
+		inputs.time.value = 0;
+		inputs.time.disabled = true;
+		for (button in buttons) buttons[button].style.color = "lightgray";
+		displays.elapsed.innerHTML = formatTime(0);
+		displays.total.innerHTML = formatTime(0);
+	});
+	
+	/** Load songs. */
+    this.load = function(files) {
+		var song = Song.fromFile(files[0]);
+		song.addEventListener("loaded", function() { 
+			player.load(song); 
+		});
+    }
+	
 	/* Check for mouse in and out of window. */
 	document.addEventListener("mouseleave", function(event) { that.mouseInside = false; });
 	document.addEventListener("mouseenter", function(event) { that.mouseInside = true; });
@@ -41,7 +140,7 @@ var overlay = new (function Overlay() {
 		that.cooldown = Math.max(0, that.cooldown - that.cooldownInterval);
 		if (that.cooldown == 0 && that.visible) 
 			that.hide();
-	}, 50);
+	}, 250);
 
     /** Show the overlay. */
     this.show = function() {

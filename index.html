@@ -10,32 +10,26 @@
     
     	<!-- Set up a fullscreen canvas. -->
     	<canvas id="canvas"></canvas>
-    
-        <form name="upload">
-            <input name="file" type="file"/>
-            <script type="text/javascript">
-                var file;
-                var song;
-                document.forms.upload.file.addEventListener("change", function(event) {
-                    file = event.target.files[0];
-                    song = Song.fromFile(file);
-                    player.load(song);
-                });
-            </script>
-        </form>
         
         <!-- Information. -->
         <div id="information" class="bar">
-        	<span id="blah" class="component left">blah blah blah</span>
-            <span id="level" class="component right">100%</span>
-            <input id="volume" class="component right" type="range" min="0" max="100"/>
+        	<span id="title" class="component left end">Vivid</span>
+        	<div id="volume-stuff">
+            	<span id="level" class="component right end">50%</span>
+	            <input id="volume" class="component right" type="range" min="0" max="100"/>
+            </div>
+			<div class="buttons">
+				<span id="last" class="button component">last</span>
+				<span id="play" class="button component">play</span>
+        		<span id="next" class="button component">next</span>
+        	</div>
     	</div>
         
         <!-- Controls. -->
         <div id="controls" class="bar">
-        	<span id="elapsed" class="component left">0:00</span>
-        	<input id="time" class="component" type="range" min="0" max="500"/>
-        	<span id="total" class="component right">0:00</span>
+        	<span id="elapsed" class="component left end">0:00</span>
+        	<input id="time" class="component" type="range" min="0" max="500" value=0 disabled=true/>
+        	<span id="total" class="component right end">0:00</span>
     	</div>
     	
     	<!-- Run main script. -->

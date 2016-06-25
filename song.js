@@ -35,9 +35,6 @@ function Song() {
 /* Local song loading. */
 Song.fromFile = function(file) {
 
-	/* Check if file cached. */
-	if (Song.cache.hasOwnProperty(file)) return Song.cache[file];
-
 	/* Create the song and a spare audio context. */
 	var song = new Song();
 	var context = new AudioContext();
@@ -58,7 +55,6 @@ Song.fromFile = function(file) {
 			
 			/* Change state and broadcast. */
 			song.state = Song.DONE;  // Also cache by file
-			Song.cache[file] = song;
 			song.emit("loaded");
 			
 		});

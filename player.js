@@ -32,9 +32,10 @@ function Player() {
     this.gain = this.audio.createGain();		  // Volume
     this.source;								  // Linked to songs
     
-    /** Connect internal audio. */
+    /** Connect internal audio and set default volume. */
     this.analyser.connect(this.gain);
     this.gain.connect(this.audio.destination);
+    this.gain.gain.value = 0.5;
     
     /** Song cursor. */
     this.cursor = new Cursor();
@@ -67,7 +68,7 @@ function Player() {
     
     /** Load a song entirely newly. */
     this.load = function(song, autoplay) {
-    
+        
     	/* Check song. */
     	if (!(song && song.state && song.state == Song.DONE)) {
     		console.warn("Song not playable.");
@@ -129,7 +130,7 @@ function Player() {
 		this.source.start(0, this.cursor.elapsed)
 		
 		/* Tell everyone. */
-		this.emit("playing", this.song)
+		this.emit("play", this.song)
 	
 	}
 	
@@ -153,7 +154,7 @@ function Player() {
 		this.source.stop();
 		
 		/* Tell everyone. */
-		this.emit("paused", this.song)
+		this.emit("pause", this.song)
 		
 	}
 	
