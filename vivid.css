@@ -1,3 +1,19 @@
+/* Themes. */
+canvas { background-color: black; }
+.bar { 
+    color: lightgray;
+    background-color: rgba(32, 32, 32, 0.6); 
+}
+.component {
+    color: lightgray;
+    color-disabled: gray;  /* These don't work yet. */
+    color-enabled: lightgray;
+}
+
+/* Turn the last, next, and play buttons off. */
+#last, #next, #play { color: lightgray; }
+
+
 /* General styles. */
 html, body {
 	overflow: hidden;
@@ -10,7 +26,6 @@ canvas {
 	position: absolute;
 	top: 0; bottom: 0; left: 0; right: 0;
 	margin: auto;
-	background-color: white; /* inherit */
 	z-index: 0;
 }
 
@@ -19,7 +34,7 @@ canvas {
 	position: absolute;
 	width: 100%;
 	left: 0;
-    height: 35px;
+    height: 40px;
 	font-size: 16px;
 	transition: all 0.5s ease-out;
     text-align: center;
@@ -27,8 +42,16 @@ canvas {
 
 /* Bar components. */
 .bar .component {
-    height: 35px;
-    line-height: 35px;
+    height: 40px;
+    line-height: 40px;
+}
+
+/* Customize the selector. */
+select.component {
+    height: 20px !important; 
+    margin: 10px 20px;
+    width: 100px;
+    color: black;
 }
 
 /* Pad the left and right ends of the bar. */

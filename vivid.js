@@ -48,8 +48,15 @@ var overlay = new (function Overlay() {
 	this.mouseInside = false;
 	this.visible = false;
 	
-	/* If the time slider is being held down. */
+	/* If the time slider is being held down and how many points per second on the slider. */
 	this.elapsedHeldDown = false;
+    this.elapsedResolution = 25;
+    this.elapsedGhostValue = 0;  /* For when manually panning. */
+    
+    /* Visualizers. */
+    this.visualizers = {};
+    this.visualizers.bars = new Bars();
+    this.visualizer = this.visualizers.bars;
     
 	/* Bind mouse move to showing the controls. */
 	document.addEventListener("mousemove", function(event) {
@@ -74,31 +81,25 @@ var overlay = new (function Overlay() {
 	}, false);
 	
 	/* Pause and play. */
-	buttons.play.addEventListener("click", function(event) {
-		if (player.playing) player.pause();
-		else player.play();
-	});
+	buttons.play.addEventListener("click", function(event) { that.toggle(); });
 	player.addEventListener("play", function() { buttons.play.innerHTML = "pause"; });
 	player.addEventListener("pause", function() { buttons.play.innerHTML = "play"; });
 
 	/* If elapsed time is being manipulated. */
-	inputs.time.addEventListener("mousedown", function(event) {
-		that.elapsedHeldDown = true;
-	});
-	inputs.time.addEventListener("mouseup", function() {
-		that.elapsedHeldDown = false;
-	});
-	inputs.time.addEventListener("change", function() {
-		player.setElapsed(inputs.time.value / 10);
-	});
+	inputs.time.addEventListener("mousedown", function(event) { that.elapsedHeldDown = true; });
+	inputs.time.addEventListener("mouseup", function() { that.elapsedHeldDown = false; });
+    inputs.time.addEventListener("input", function() { that.elapsedGhostValue = inputs.time.value / that.elapsedResolution; });
+	inputs.time.addEventListener("change", function() { player.setElapsed(inputs.time.value / that.elapsedResolution); });
 	
 	/* Constantly update times. */
 	setInterval(function() {
 		if (player.playing && !that.elapsedHeldDown) {
-			var elapsed = Math.floor(player.getElapsed());
-			inputs.time.value = elapsed * 10;
-			displays.elapsed.innerHTML = formatTime(elapsed)
-		}
+			var elapsed = player.getElapsed();
+			inputs.time.value = Math.floor(elapsed * that.elapsedResolution);
+            displays.elapsed.innerHTML = formatTime(elapsed);
+		} else if (that.elapsedHeldDown) {
+            displays.elapsed.innerHTML = formatTime(that.elapsedGhostValue);
+        }
 	}, 50);
 	
 	/* Volume. */
@@ -111,8 +112,8 @@ var overlay = new (function Overlay() {
 	player.addEventListener("loaded", function(song) {
 		displays.title.innerHTML = song.name;
 		inputs.time.disabled = false;
-		inputs.time.max = song.length*10;
-		for (button in buttons) buttons[button].style.color = "black";
+		inputs.time.max = Math.floor(song.length * that.elapsedResolution);
+		for (button in buttons) buttons[button].style.color = buttons[button].style.colorEnabled;
 		displays.elapsed.innerHTML = formatTime(0);
 		displays.total.innerHTML = formatTime(player.song.length);
 	});
@@ -121,18 +122,10 @@ var overlay = new (function Overlay() {
 	player.addEventListener("unloaded", function() {
 		inputs.time.value = 0;
 		inputs.time.disabled = true;
-		for (button in buttons) buttons[button].style.color = "lightgray";
+		for (button in buttons) buttons[button].style.color = buttons[button].style.colorDisabled;
 		displays.elapsed.innerHTML = formatTime(0);
 		displays.total.innerHTML = formatTime(0);
 	});
-	
-	/** Load songs. */
-    this.load = function(files) {
-		var song = Song.fromFile(files[0]);
-		song.addEventListener("loaded", function() { 
-			player.load(song); 
-		});
-    }
 	
 	/* Check for mouse in and out of window. */
 	document.addEventListener("mouseleave", function(event) { that.mouseInside = false; });
@@ -144,6 +137,20 @@ var overlay = new (function Overlay() {
 		if (that.cooldown == 0 && that.visible) 
 			that.hide();
 	}, 250);
+    
+	/** Load songs. */
+    this.load = function(files) {
+		var song = Song.fromFile(files[0]);
+		song.addEventListener("loaded", function() { 
+			player.load(song); 
+		});
+    }
+    
+    /** Toggle play and pause. */
+    this.toggle = function() {
+		if (player.playing) player.pause();
+		else player.play();
+    }
 
     /** Show the overlay. */
     this.show = function() {
@@ -168,19 +175,21 @@ var overlay = new (function Overlay() {
     	var h = canvas.height;
     	
 		/* Clear context. */
-		context.fillStyle = "white";
-		context.fillRect(0, 0, w, h);
+		context.clearRect(0, 0, w, h);
     	
     	/* Get equalizer data if a song is loaded. */
-		var equalizer;
-		if (equalizer = player.getEqualizer()) {
+		if (player.loaded) {
 		
+            this.visualizer.draw(canvas, context);
+            
 		} else {
-			context.fillStyle = "black";
+			context.fillStyle = "white";
 			context.textAlign = "center";
 			context.textBaseline = "middle";
+            context.font = "80px sans-serif";
+            context.fillText("vivid", w/2, h/2-20);
 			context.font = "20px sans-serif";
-			context.fillText("drag and drop to play", w/2, h/2);
+			context.fillText("drag and drop to play", w/2, h/2+40);
 		}
 	
     }
@@ -189,6 +198,43 @@ var overlay = new (function Overlay() {
     this.draw();
     
 })();
+
+/* Draw equalizer bars. */    
+function Bars() {
+    
+    this.config = {};
+    this.config.gap = 3;
+    this.config.bottom = 0;
+    this.config.start = 0;
+    this.config.range = 50;
+    this.config.count = 50;
+    this.color = 0;
+    
+    this.draw = function(canvas, context) {
+        
+        maxHeight = 0.8 * canvas.height;
+        
+        /* Get the equalizer data. */
+        var array = player.getEqualizer();
+        
+        /* Get some math. */
+        var width = (canvas.width - (this.config.range+1)*this.config.gap) / this.config.range;
+        var step = Math.round(this.config.range / Math.min(this.config.range, this.config.count));
+        
+        /* Draw each bar. */
+        for (var i = 0; i < this.config.range; i++) {
+            var value = Math.pow(array[i * step + this.config.start]/256,8);
+            var x = Math.floor(i * (width + this.config.gap) + this.config.gap)
+            var y = canvas.height - value*maxHeight;
+            context.fillStyle = "hsl(" + Math.ceil(player.getElapsed()/1000) + ",100%,"+Math.floor(value*45+5)+"%)";
+            context.fillRect(x, y, Math.ceil(width), value*maxHeight - this.config.bottom);
+            this.color++;
+        }
+        
+    }
+    
+}
+
 
 /* Window resizing and canvas size. */
 var resize = window.onload = window.onresize = function() {
