@@ -10,6 +10,10 @@ function formatTime(seconds) {
 /* Create a player. */
 var player = new Player();
 
+/* Canvas. */
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+
 /* Grab controls. */
 var controls = document.getElementById("controls");
 var information = document.getElementById("information")
@@ -74,7 +78,6 @@ var overlay = new (function Overlay() {
 		if (player.playing) player.pause();
 		else player.play();
 	});
-	
 	player.addEventListener("play", function() { buttons.play.innerHTML = "pause"; });
 	player.addEventListener("pause", function() { buttons.play.innerHTML = "play"; });
 
@@ -153,6 +156,37 @@ var overlay = new (function Overlay() {
         controls.style.opacity = 0;
         information.style.opacity = 0;
     }
+    
+    /** Draw the canvas. */
+    this.draw = function() {
+
+		/* Call animation again. */    
+    	requestAnimationFrame(this.draw.bind(this));
+    	
+    	/* Get canvas width and height. */
+    	var w = canvas.width;
+    	var h = canvas.height;
+    	
+		/* Clear context. */
+		context.fillStyle = "white";
+		context.fillRect(0, 0, w, h);
+    	
+    	/* Get equalizer data if a song is loaded. */
+		var equalizer;
+		if (equalizer = player.getEqualizer()) {
+		
+		} else {
+			context.fillStyle = "black";
+			context.textAlign = "center";
+			context.textBaseline = "middle";
+			context.font = "20px sans-serif";
+			context.fillText("drag and drop to play", w/2, h/2);
+		}
+	
+    }
+    
+    /* Actually draw. */
+    this.draw();
     
 })();
 

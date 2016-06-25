@@ -195,7 +195,7 @@ function Player() {
 	this.setElapsed = function(time) {
 	
 		/* Check if loaded. */
-		if (!this.loaded) { console.warn("Nothing loaded!"); return; }
+		if (!this.loaded) { return; }
         
         /* Check if should play after. */
         var resume = this.playing;
@@ -214,7 +214,7 @@ function Player() {
 	this.getElapsed = function() {
 	
 		/* Check if loaded. */
-		if (!this.loaded) { console.warn("Nothing loaded!"); return; }
+		if (!this.loaded) { return; }
 	
 		/* Calculate if playing, otherwise return elapsed. */
 		if (this.playing) return (Date.now() / 1000 - this.cursor.start);
@@ -226,7 +226,7 @@ function Player() {
     this.getEqualizer = function() {
         
         /* Check if loaded. */
-		if (!this.loaded) { console.warn("Nothing loaded!"); return; }
+		if (!this.loaded) { return; }
 
         /* Get the analyzer array. */
         var array = new Uint8Array(this.analyser.frequencyBinCount);
