@@ -3,8 +3,12 @@
 /* Create a player. */
 var player = new Player();
 
+/* Grab the footer controls. */
+var controls = document.getElementById("controls");
+var information = document.getElementById("information")
+
 /* Set up the controls manager. */
-var controls = new (function Controller() {
+var overlay = new (function Overlay() {
 
 	/* Reference. */
 	var that = this;
@@ -17,19 +21,15 @@ var controls = new (function Controller() {
 	this.lastMouseY = 0;
 	this.mouseInside = false;
 	this.visible = false;
-
-	/* Grab the footer controls. */
-	this.element = document.getElementById("controls");
-	this.transformDefault = this.element.style.transform;
-	
+    
 	/* Bind mouse move to showing the controls. */
 	document.addEventListener("mousemove", function(event) {
 		that.cooldown = that.cooldownStart;
 		that.lastMouseX = event.x;
 		that.lastMouseY = event.y;
 		that.mouseInside = true;
-		that.element.style.transform = "none";
-		this.visible = true;
+        that.show();
+		that.visible = true;
 	});
 	
 	/* Check for mouse in and out of window. */
@@ -38,11 +38,23 @@ var controls = new (function Controller() {
 	
 	/* Constantly try to lerp the controls to being hidden. */
 	setInterval(function() {
-		controls.cooldown = Math.max(0, controls.cooldown - that.cooldownInterval);
-		if (controls.cooldown == 0 && that.element.style.transform == "none") 
-			that.element.style.transform = controls.transformDefault;
+		that.cooldown = Math.max(0, that.cooldown - that.cooldownInterval);
+		if (that.cooldown == 0 && that.visible) 
+			that.hide();
 	}, 50);
 
+    /** Show the overlay. */
+    this.show = function() {
+        controls.style.opacity = 1;
+        information.style.opacity = 1;
+    }
+    
+    /** Hide the overlay. */
+    this.hide = function() {
+        controls.style.opacity = 0;
+        information.style.opacity = 0;
+    }
+    
 })();
 
 /* Window resizing and canvas size. */
