@@ -142,7 +142,7 @@ var overlay = new (function Overlay() {
     this.load = function(files) {
 		var song = Song.fromFile(files[0]);
 		song.addEventListener("loaded", function() { 
-			player.load(song); 
+			player.load(song, true); //  autoplay 
 		});
     }
     
@@ -212,7 +212,7 @@ function Bars() {
     
     this.draw = function(canvas, context) {
         
-        maxHeight = 0.8 * canvas.height;
+        maxHeight = 0.5 * canvas.height;
         
         /* Get the equalizer data. */
         var array = player.getEqualizer();
@@ -223,10 +223,10 @@ function Bars() {
         
         /* Draw each bar. */
         for (var i = 0; i < this.config.range; i++) {
-            var value = Math.pow(array[i * step + this.config.start]/256,8);
+            var value = Math.pow(array[i * step + this.config.start]/256,5);
             var x = Math.floor(i * (width + this.config.gap) + this.config.gap)
             var y = canvas.height - value*maxHeight;
-            context.fillStyle = "hsl(" + Math.ceil(player.getElapsed()/1000) + ",100%,"+Math.floor(value*45+5)+"%)";
+            context.fillStyle = "hsl(" + Math.ceil(player.getElapsed()*2) % 360 + ",100%,"+Math.floor(value*45+5)+"%)";
             context.fillRect(x, y, Math.ceil(width), value*maxHeight - this.config.bottom);
             this.color++;
         }
@@ -234,7 +234,6 @@ function Bars() {
     }
     
 }
-
 
 /* Window resizing and canvas size. */
 var resize = window.onload = window.onresize = function() {
