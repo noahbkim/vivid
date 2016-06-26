@@ -134,7 +134,7 @@ var overlay = new (function Overlay() {
 	/* Constantly try to lerp the controls to being hidden. */
 	setInterval(function() {
 		that.cooldown = Math.max(0, that.cooldown - that.cooldownInterval);
-		if (that.cooldown == 0 && that.visible) 
+		if (that.cooldown == 0 && that.visible)
 			that.hide();
 	}, 250);
     
@@ -156,12 +156,18 @@ var overlay = new (function Overlay() {
     this.show = function() {
         controls.style.opacity = 1;
         information.style.opacity = 1;
+        canvas.style.cursor = "default";
+        controls.style.cursor = "default";
+        information.style.cursor = "default";
     }
     
     /** Hide the overlay. */
     this.hide = function() {
         controls.style.opacity = 0;
         information.style.opacity = 0;
+        canvas.style.cursor = "none";
+        controls.style.cursor = "none";
+        information.style.cursor = "none";
     }
     
     /** Draw the canvas. */
