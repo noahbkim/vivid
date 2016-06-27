@@ -31,6 +31,7 @@ var displays = {
 var inputs = {
 	time: document.getElementById("time"),
 	volume: document.getElementById("volume"),
+	type: document.getElementById("type"),
 }
 
 /* Set up the controls manager. */
@@ -56,6 +57,7 @@ var overlay = new (function Overlay() {
     /* Visualizers. */
     this.visualizers = {};
     this.visualizers.bars = new Bars();
+    this.visualizers.wave = new Wave();
     this.visualizer = this.visualizers.bars;
     
 	/* Bind mouse move to showing the controls. */
@@ -66,6 +68,12 @@ var overlay = new (function Overlay() {
 		that.mouseInside = true;
         that.show();
 		that.visible = true;
+	});
+	
+	/* Change visualizer. */
+	inputs.type.addEventListener("change", function() {
+		console.log(inputs.type.value);
+		that.visualizer = that.visualizers[inputs.type.value];
 	});
 	
 	/* Drag and drop. */
@@ -186,7 +194,7 @@ var overlay = new (function Overlay() {
     	/* Get equalizer data if a song is loaded. */
 		if (player.loaded) {
 		
-            this.visualizer.draw(canvas, context);
+            this.visualizer.draw(player, canvas, context);
             
 		} else {
 			context.fillStyle = "white";
@@ -212,11 +220,14 @@ function Bars() {
     this.config.gap = 3;
     this.config.bottom = 0;
     this.config.start = 0;
-    this.config.range = 50;
-    this.config.count = 50;
+    this.config.range = 48;
+    this.config.count = 48;
     this.color = 0;
     
-    this.draw = function(canvas, context) {
+    this.smoothing = 0;
+    this.arrays = new Array(this.smoothing);
+        
+    this.draw = function(player, canvas, context) {
         
         maxHeight = 0.5 * canvas.height;
         
@@ -229,7 +240,25 @@ function Bars() {
         
         /* Draw each bar. */
         for (var i = 0; i < this.config.range; i++) {
-            var value = Math.pow(array[i * step + this.config.start]/256,5);
+        
+        	var raw = 0;
+        	if (this.smoothing == 0) {
+        		raw = array[i * step + this.config.start];
+        	
+        	/* Experimental smoothing. */
+        	} else {
+				var index = i * step + this.config.start;	
+				var sum = array[index];
+				var div = this.smoothing + 1;
+				for (var j = 0; j < this.smoothing; j++) {
+					if (this.arrays[j]) sum += this.arrays[j][index];
+					else div -= 1;
+				}
+				raw = sum/div;
+			}
+        	        	        
+        				
+            var value = Math.pow(raw/256, 8);
             var x = Math.floor(i * (width + this.config.gap) + this.config.gap)
             var y = canvas.height - value*maxHeight;
             context.fillStyle = "hsl(" + Math.ceil(player.getElapsed()*2) % 360 + ",100%,"+Math.floor(value*45+5)+"%)";
@@ -237,8 +266,32 @@ function Bars() {
             this.color++;
         }
         
+        /* Store the last array. */
+        this.arrays.unshift(array);
+        this.arrays.pop(this.smoothing);
+        
     }
     
+}
+
+/* Radial pulses for base. */
+function Wave() {
+
+	this.draw = function(player, canvas, context) {
+	
+		context.strokeStyle = "white";
+		context.beginPath();
+		context.moveTo(0, canvas.height/2);
+		
+		var array = player.getWaveform();
+		for (var i = 0; i < array.length; i += array.length / 1024) {
+			context.lineTo(i*canvas.width/1024, (3/4 - array[i]/255/2)*canvas.height);
+		}
+		
+		context.stroke();
+	
+	}
+
 }
 
 /* Window resizing and canvas size. */

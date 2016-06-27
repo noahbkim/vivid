@@ -31,7 +31,7 @@ function Player() {
     this.analyser = this.audio.createAnalyser();  // Equalizer and waveform
     this.gain = this.audio.createGain();		  // Volume
     this.source;								  // Linked to songs
-    
+            
     /** Connect internal audio and set default volume. */
     this.analyser.connect(this.gain);
     this.gain.connect(this.audio.destination);
@@ -226,13 +226,26 @@ function Player() {
     this.getEqualizer = function() {
         
         /* Check if loaded. */
-		if (!this.loaded) { return; }
+		if (!this.loaded) return;
 
         /* Get the analyzer array. */
         var array = new Uint8Array(this.analyser.frequencyBinCount);
         this.analyser.getByteFrequencyData(array);
         return array;
         
+    }
+    
+    /** Get waveform data. */
+    this.getWaveform = function() {
+
+        /* Check if loaded. */
+    	if (!this.loaded) return;
+    	
+    	/* Get the waveform array. */
+    	var array = new Uint8Array(this.analyser.frequencyBinCount);
+    	this.analyser.getByteTimeDomainData(array);
+    	return array;
+    
     }
 
 }
