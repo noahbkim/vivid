@@ -10,11 +10,15 @@ class EventInterface {
     else this.listeners[event].push(listener);
   }
 
-  removeEventListener(event, listener: (data: any) => void) {
+  removeEventListener(event, listener) {
     if (this.listeners[event] !== undefined) {
       const i = this.listeners[event].indexOf(listener);
       return this.listeners[event].splice(i, i + 1);
     }
+  }
+
+  clearEventListeners() {
+    this.listeners = {};
   }
 
   fireEvent(event, data) {

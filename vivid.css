@@ -1,104 +1,33 @@
-/* Themes. */
-canvas { background-color: black; }
-.bar { 
-    color: lightgray;
-    background-color: rgba(32, 32, 32, 0.6); 
-}
-.component {
-    color: lightgray;
-    color-disabled: gray;  /* These don't work yet. */
-    color-enabled: lightgray;
+body {
+  margin: 0;
 }
 
-/* Turn the last, next, and play buttons off. */
-#last, #next, #play { color: lightgray; }
-
-
-/* General styles. */
-html, body {
-	overflow: hidden;
-	font-family: sans-serif;
-}
-
-/* Center the canvas. */
 canvas {
-	display: block;
-	position: absolute;
-	top: 0; bottom: 0; left: 0; right: 0;
-	margin: auto;
-	z-index: 0;
+  background-color: black;
 }
 
-/* Control menu bars. */
-.bar {
-	position: absolute;
-	width: 100%;
-	left: 0;
-    height: 40px;
-	font-size: 16px;
-	transition: all 0.5s ease-out;
-    text-align: center;
+.upload {
+  top: 0;
+  right: 0;
+  position: absolute;
+  overflow: hidden;
+  display: block;
+  color: white;
 }
 
-/* Bar components. */
-.bar .component {
-    height: 40px;
-    line-height: 40px;
+.label {
+  font-size: 30px;
+  padding-right: 8px;
+  font-weight: lighter;
 }
 
-/* Customize the selector. */
-select.component {
-    height: 20px !important; 
-    margin: 10px 20px;
-    width: 100px;
-    color: black;
+#file {
+  font-size: 100px;
+  height: 50px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
 }
 
-/* Pad the left and right ends of the bar. */
-.bar .component.left.end { padding-left: 10px; }
-.bar .component.right.end { padding-right: 10px; }
 
-/* The last, play, and next buttons. Try to think of a better way to get them always centered. */
-/* .buttons { position: absolute; width: 20%; left: 0px; margin: 0 40%; z-index: 1; } */
-.button { display: inline-block; padding: 0px 10px; cursor: pointer; color: lightgray; }
-
-/* Move volume and title above buttons. */
-/* #volume-stuff { position: absolute; right: 0; z-index: 2; }
-#title { position: absolute: left: 0; z-index: 2; } */
-
-/* Make play wide enough to not change width when pause. */
-#play { min-width: 60px; }
-#level { min-width: 40px; text-align: right; }
-
-/* Make the title cut off at a point. */
-/* #title { 
-	max-width: 40%; 
-	text-overflow: ellipsis; 
-	white-space: nowrap;
-	overflow: hidden;
-} */
-
-/* Prevent input components from being weird. */
-input.component { margin: 0; }
-
-/* Give the audio level some space. */
-#level { padding-left: 10px; }
-
-/* Top menu bar. */
-#information {
-	top: 0;
-	opacity: 0;
-}
-
-/* Bottom menu bar. */
-#controls {
-	bottom: 0; 
-	opacity: 0;
-}
-
-/* Calculate width of time based on side elements. */
-#time { width: calc(100% - 130px); }
-#elapsed, #total { width: 45px; }
-
-.left { float: left; }
-.right { float: right; }
