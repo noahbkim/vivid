@@ -1,24 +1,33 @@
-/** Event listener mockup. */
-function Dispatcher() {
-	
-	/* Event to callback list. */
-	var map = {};
-	
-	/** Add a callback to an event. */
-	this.addEventListener = function(event, callback) { 
-		if (map[event]) map[event].push(callback);
-		else map[event] = [callback];
-	}
-	
-	/** Clear all callbacks. */
-	this.clearEventListeners = function() {
-		this.map = {};
-	}
-	
-	/** Fire an event with data. */
-	this.emit = function(event, data) { 
-		var callbacks = map[event];
-		for (var i in callbacks) callbacks[i](data);
-	}
-	
+class EventInterface {
+
+  constructor() {
+    this.listeners = {}
+  }
+
+  addEventListener(event, listener) {
+    if (this.listeners[event] === undefined)
+      this.listeners[event] = [listener];
+    else this.listeners[event].push(listener);
+  }
+
+  removeEventListener(event, listener: (data: any) => void) {
+    if (this.listeners[event] !== undefined) {
+      const i = this.listeners[event].indexOf(listener);
+      return this.listeners[event].splice(i, i + 1);
+    }
+  }
+
+  fireEvent(event, data) {
+    const listeners = this.listeners[event];
+    if (listeners !== undefined)
+      listeners.map(function(listener) { listener(data); });
+  }
+
+  /** Experimental: raises callback of linked event source. */
+  propagateEvent(object, event, rename) {
+    object.addEventListener(event, (data) => {
+      this.fireEvent(rename || event, data);
+    });
+  }
+
 }

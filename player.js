@@ -16,55 +16,53 @@ function Cursor() {
 }
 
 /** The music player. */
-function Player() {
+class Player extends EventInterface {
 
-	/* Superclass. */
-	Dispatcher.call(this);
+  /** Generate audio components. */
+  constructor() {
+    super();
 
-    /* Reference to self. */
-	var that = this;
-    
-    /** Core audio components. */
-    this.audio = new AudioContext();  // Audio element
-    
-    /** Internal audio components. */
-    this.analyser = this.audio.createAnalyser();  // Equalizer and waveform
-    this.gain = this.audio.createGain();		  // Volume
-    this.source;								  // Linked to songs
-            
-    /** Connect internal audio and set default volume. */
-    this.analyser.connect(this.gain);
+    /* Create the components. */
+    this.audio = new AudioContext();              // Audio element
+    this.gain = this.audio.createGain();		      // Volume
     this.gain.connect(this.audio.destination);
+    this.analyser = this.audio.createAnalyser();  // Equalizer and waveform
+    this.analyser.connect(this.gain);
+    this.source = null; 					                // Linked to songs
+
+    /*  Attach analyzer */
     this.gain.gain.value = 0.5;
-    
-    /** Song cursor. */
+
+    /* Song cursor. */
     this.cursor = new Cursor();
     this.song = null;
-    
-    /** Loaded and playing. */
+
+    /* Loaded and playing. */
     this.loaded = false;
     this.playing = false;
-    
+
     /** Miscellaneous properties. */
     this.ignoreManualSourceStop = false;  // Used to prevent manual ended callbacks
-    
-    /** Unload the current song. */
-    this.unload = function() {
+
+  }
+
+  /** Unload the current song. */
+  unload() {
     
 		/* Check if already playing or not loaded. */
 		if (!this.loaded) { console.warn("Nothing loaded!"); return; } 
 		   	
-    	/* Check if playing. */
-    	if (this.playing) this.pause();
+    /* Check if playing. */
+    if (this.playing) this.pause();
+
+    /* Unbind everything. */
+    this.song.clearEventListeners();
+
+    /* Update states and broadcast. */
+    this.loaded = false;
+    this.emit("unloaded", this.song)
     	
-    	/* Unbind everything. */
-    	this.song.clearEventListeners();
-    	
-    	/* Update states and broadcast. */
-    	this.loaded = false;
-    	this.emit("unloaded", this.song)
-    	
-    }
+  }
     
     /** Load a song entirely newly. */
     this.load = function(song, autoplay) {

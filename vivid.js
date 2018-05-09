@@ -1,5 +1,19 @@
 /** A set of tools for the Vivid visualizer. */
 
+
+
+class Controller {
+
+  player:
+
+}
+
+
+
+
+
+
+
 /* Convenience. */
 function formatTime(seconds) {
 	var s = Math.floor(seconds) % 60;
