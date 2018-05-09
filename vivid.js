@@ -1,10 +1,11 @@
 /** A set of tools for the Vivid visualizer. */
 
 
-const options = {bars: true, wave: false};
+const options = {bars: true, wave: false, circle: false};
 const controls = {
   bars: document.getElementById("bars"),
-  wave: document.getElementById("wave")
+  wave: document.getElementById("wave"),
+  circle: document.getElementById("circle"),
 };
 
 for (let option of Object.keys(options)) {
@@ -26,6 +27,7 @@ class Controller {
   	this.song = null;
   	this.bars = new Bars();
   	this.wave = new Wave();
+  	this.circle = new Circle();
   	upload.addEventListener("input", () => this.load(upload.files[0]));
 	}
 
@@ -46,6 +48,7 @@ class Controller {
     if (this.player.loaded) {
 		  if (options.bars) this.bars.draw(this.player, this.canvas, this.context);
 		  if (options.wave) this.wave.draw(this.player, this.canvas, this.context);
+		  if (options.circle) this.circle.draw(this.player, this.canvas, this.context);
     }
   }
 
@@ -68,15 +71,12 @@ class Bars {
     let array = player.equalizer();
     let width = (canvas.width - (this.range + 1) * this.gap) / this.range;
     let step = Math.floor(this.range / Math.min(this.range, this.count));
-
     for (let i = 0; i < this.range; i++) {
       let raw = 0;
       raw = array[i * step + this.start];
-
       let value = Math.pow(raw / 256, 8);
       let x = Math.floor(i * (width + this.gap) + this.gap);
       let y = canvas.height - value * max;
-
       context.fillStyle = "hsl(" + Math.ceil(player.elapsed() * 2) % 360 + ",100%," + Math.floor(value * 45 + 5) + "%)";
       context.fillRect(x, y, Math.ceil(width), value * max - this.bottom);
     }
@@ -88,7 +88,8 @@ class Bars {
 class Wave {
 
 	draw(player, canvas, context) {
-		context.strokeStyle = "white";
+    context.lineWidth = 3;
+    context.strokeStyle = "white";
 		context.beginPath();
 		context.moveTo(0, canvas.height/2);
 		let array = player.waveform();
@@ -98,6 +99,29 @@ class Wave {
 	}
 
 }
+
+
+/* Bass circle. */
+class Circle {
+
+  constructor() {
+    this.last = 0;
+    this.count = 3;
+  }
+
+  draw(player, canvas, context) {
+    let bass = player.equalizer().slice(0, this.count).reduce((a, b) => a + b) / 256 / this.count;
+    let average = (bass + this.last) / 2;
+    this.last = bass;
+    context.lineWidth = 3;
+    context.strokeStyle = "white";
+    context.beginPath();
+    context.arc(canvas.width / 2, canvas.height / 2, 150 * average, 0, 2*Math.PI);
+    context.stroke();
+  }
+
+}
+
 
 
 let canvas = document.getElementById("canvas");
@@ -112,3 +136,5 @@ let resize = window.onresize = () => {
 resize();
 
 let controller = new Controller(canvas, upload);
+
+
