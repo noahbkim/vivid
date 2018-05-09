@@ -1,6 +1,22 @@
 /** A set of tools for the Vivid visualizer. */
 
 
+const options = {bars: true, wave: false};
+const controls = {
+  bars: document.getElementById("bars"),
+  wave: document.getElementById("wave")
+};
+
+for (let option of Object.keys(options)) {
+  let control = controls[option];
+  control && control.addEventListener("click", () => {
+    options[option] = !options[option];
+    control.classList.toggle("off");
+  });
+}
+
+
+
 class Controller {
 
   constructor(canvas, upload) {
@@ -9,6 +25,7 @@ class Controller {
   	this.player = null;
   	this.song = null;
   	this.bars = new Bars();
+  	this.wave = new Wave();
   	upload.addEventListener("input", () => this.load(upload.files[0]));
 	}
 
@@ -23,17 +40,12 @@ class Controller {
 
   draw() {
     requestAnimationFrame(this.draw.bind(this));
-
-    /* Localize variables for multiple use. */
     let w = this.canvas.width;
     let h = this.canvas.height;
-
-    /* Clear canvas. */
-		this.context.clearRect(0, 0, w, h);
-
-		/* Render visualizers if loaded. */
-		if (this.player.loaded) {
-		  this.bars.draw(this.player, this.canvas, this.context);
+    this.context.clearRect(0, 0, w, h);
+    if (this.player.loaded) {
+		  if (options.bars) this.bars.draw(this.player, this.canvas, this.context);
+		  if (options.wave) this.wave.draw(this.player, this.canvas, this.context);
     }
   }
 
@@ -44,20 +56,18 @@ class Controller {
 class Bars {
     
   constructor() {
-    this.gap = 10;
+    this.gap = 5;
     this.bottom = 5;
     this.start = 0;
-    this.range = 48;
-    this.count = 48;
-    this.smoothing = 0;
-    this.arrays = new Array(this.smoothing);
+    this.range = 64;
+    this.count = 64;
   }
         
   draw(player, canvas, context) {
     let max = 0.6 * canvas.height;
     let array = player.equalizer();
     let width = (canvas.width - (this.range + 1) * this.gap) / this.range;
-    let step = Math.round(this.range / Math.min(this.range, this.count));
+    let step = Math.floor(this.range / Math.min(this.range, this.count));
 
     for (let i = 0; i < this.range; i++) {
       let raw = 0;
@@ -75,21 +85,16 @@ class Bars {
 }
 
 /* Radial pulses for base. */
-function Wave() {
+class Wave {
 
-	this.draw = function(player, canvas, context) {
-	
+	draw(player, canvas, context) {
 		context.strokeStyle = "white";
 		context.beginPath();
 		context.moveTo(0, canvas.height/2);
-		
-		var array = player.getWaveform();
-		for (var i = 0; i < array.length; i += array.length / 1024) {
+		let array = player.waveform();
+		for (let i = 0; i < array.length; i += array.length / 1024)
 			context.lineTo(i*canvas.width/1024, (3/4 - array[i]/255/2)*canvas.height);
-		}
-		
 		context.stroke();
-	
 	}
 
 }

@@ -6,19 +6,38 @@ canvas {
   background-color: black;
 }
 
-.upload {
-  top: 0;
-  right: 0;
+.controls, .upload {
   position: absolute;
-  overflow: hidden;
-  display: block;
   color: white;
 }
 
+.controls {
+  top: 0;
+  left: 0;
+}
+
+.controls div {
+  display: inline-block;
+}
+
+.upload {
+  top: 0;
+  right: 0;
+  overflow: hidden;
+}
+
 .label {
+  font-family: Arial, sans-serif;
+  font-size: 22px;
+  padding: 12px 14px;
+  padding-right: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.symbol {
   font-size: 30px;
-  padding-right: 8px;
-  font-weight: lighter;
+  padding: 8px 12px;
 }
 
 #file {
@@ -28,6 +47,9 @@ canvas {
   left: 0;
   top: 0;
   opacity: 0;
+  cursor: pointer;
 }
 
-
+.off {
+  opacity: .5;
+}
