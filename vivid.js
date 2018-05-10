@@ -70,7 +70,7 @@ class Bars {
     let max = 0.6 * canvas.height;
     let array = player.equalizer();
     let width = (canvas.width - (this.range + 1) * this.gap) / this.range;
-    let step = Math.floor(this.range / Math.min(this.range, this.count));
+    let step = Math.floor(this.range / this.count);
     for (let i = 0; i < this.range; i++) {
       let raw = 0;
       raw = array[i * step + this.start];
