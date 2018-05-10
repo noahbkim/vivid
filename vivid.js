@@ -62,16 +62,16 @@ class Bars {
     this.gap = 5;
     this.bottom = 5;
     this.start = 0;
-    this.range = 64;
-    this.count = 64;
+    this.range = 64;  // Array range
+    this.count = 64;  // Bar count
   }
         
   draw(player, canvas, context) {
     let max = 0.6 * canvas.height;
     let array = player.equalizer();
-    let width = (canvas.width - (this.range + 1) * this.gap) / this.range;
+    let width = (canvas.width - (this.count + 1) * this.gap) / this.count;
     let step = Math.floor(this.range / Math.min(this.count, this.range));
-    for (let i = 0; i < this.range; i++) {
+    for (let i = 0; i < this.count; i++) {
       let raw = 0;
       raw = array[i * step + this.start];
       let value = Math.pow(raw / 256, 8);
